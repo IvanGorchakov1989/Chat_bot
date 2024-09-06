@@ -3,32 +3,42 @@ import time
 import thingspeak
 from config import *
 import json
-    
+import secrets
+
 offset = -2
 counter = 0
 chat_id: int
 
 ch = thingspeak.Channel(id = channel_id_small_room, api_key = thingspeak_api_key)
 
-temperature = round(float(json.loads(ch.get_field_last(field=1))['field1']), 2)
-humidity = round(float(json.loads(ch.get_field_last(field=2))['field2']), 2)
-battery_Voltage = round(float(json.loads(ch.get_field_last(field=3))['field3']), 2)
-print(temperature, humidity, battery_Voltage)
-# while counter < MAX_COUNTER:
+while counter < MAX_COUNTER:
 
-#     print('attempt =', counter)  #Чтобы видеть в консоли, что код живет
+    print('attempt =', counter)  #Чтобы видеть в консоли, что код живет
 
-#     updates = requests.get(f'{API_URL}{BOT_TOKEN}/getUpdates?offset={offset + 1}').json()
+    updates = requests.get(f'{API_URL}{BOT_TOKEN}/getUpdates?offset={offset + 1}').json()
 
-#     if updates['result']:
-#         for result in updates['result']:
-#             offset = result['update_id']
-#             chat_id = result['message']['from']['id']
-#             requests.get(f'{API_URL}{BOT_TOKEN}/sendMessage?chat_id={chat_id}&text={TEXT}')
+    if updates['result']:
+        for result in updates['result']:
+            offset = result['update_id']
+            chat_id = result['message']['from']['id']
+            result_text = result['message']['text'][1:]
+            match result_text:
+                case 'password':
+                    text = secrets.token_urlsafe(20)
+                    requests.get(f'{API_URL}{BOT_TOKEN}/sendMessage?chat_id={chat_id}&text={text}')
+                case 'value':
+                    temperature = round(float(json.loads(ch.get_field_last(field=1))['field1']), 1)
+                    humidity = round(float(json.loads(ch.get_field_last(field=2))['field2']), 1)
+                    battery_Voltage = round(float(json.loads(ch.get_field_last(field=3))['field3']), 1)
+                    text = 'В маленькой комнате сейчас ' + str(temperature) + '*C, влажность ' + str(humidity) + '%, Вольтаж батареи ' + str(battery_Voltage) + 'V'
+                    requests.get(f'{API_URL}{BOT_TOKEN}/sendMessage?chat_id={chat_id}&text={text}')
+                case 'graphs':
+                    requests.get(f'{API_URL}{BOT_TOKEN}/sendMessage?chat_id={chat_id}&text={TEXT}')
 
-#     time.sleep(1)
-#     counter += 1
+    time.sleep(1)
+    counter += 1
 
+### Ниже код генерации картинки с котиком на любой запрос
 # offset = -2
 # counter = 0
 # cat_response: requests.Response
