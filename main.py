@@ -30,7 +30,7 @@ while counter < MAX_COUNTER:
                     temperature = round(float(json.loads(ch.get_field_last(field=1))['field1']), 1)
                     humidity = round(float(json.loads(ch.get_field_last(field=2))['field2']), 1)
                     battery_Voltage = round(float(json.loads(ch.get_field_last(field=3))['field3']), 1)
-                    text = 'В маленькой комнате сейчас ' + str(temperature) + '*C, влажность ' + str(humidity) + '%, Вольтаж батареи ' + str(battery_Voltage) + 'V'
+                    text = 'В маленькой комнате сейчас ' + str(temperature) + '*C, влажность ' + str(humidity) + '%, вольтаж батареи ' + str(battery_Voltage) + 'V'
                     requests.get(f'{API_URL}{BOT_TOKEN}/sendMessage?chat_id={chat_id}&text={text}')
                 case 'graphs':
                     requests.get(f'{API_URL}{BOT_TOKEN}/sendMessage?chat_id={chat_id}&text={TEXT}')
